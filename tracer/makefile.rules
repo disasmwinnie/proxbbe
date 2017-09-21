@@ -1,0 +1,77 @@
+##############################################################
+#
+# This file includes all the test targets as well as all the
+# non-default build rules and test recipes.
+#
+##############################################################
+
+
+##############################################################
+#
+# Test targets
+#
+##############################################################
+
+###### Place all generic definitions here ######
+
+# This defines tests which run tools of the same name.  This is simply for convenience to avoid
+# defining the test name twice (once in TOOL_ROOTS and again in TEST_ROOTS).
+# Tests defined here should not be defined in TOOL_ROOTS and TEST_ROOTS.
+TEST_TOOL_ROOTS := proxbbe_tracer
+#TEST_TOOL_ROOTS :=
+
+# This defines the tests to be run that were not already defined in TEST_TOOL_ROOTS.
+TEST_ROOTS :=
+
+# This defines the tools which will be run during the the tests, and were not already defined in
+# TEST_TOOL_ROOTS.
+TOOL_ROOTS :=
+
+# This defines the static analysis tools which will be run during the the tests. They should not
+# be defined in TEST_TOOL_ROOTS. If a test with the same name exists, it should be defined in
+# TEST_ROOTS.
+# Note: Static analysis tools are in fact executables linked with the Pin Static Analysis Library.
+# This library provides a subset of the Pin APIs which allows the tool to perform static analysis
+# of an application or dll. Pin itself is not used when this tool runs.
+SA_TOOL_ROOTS :=
+
+# This defines all the applications that will be run during the tests.
+APP_ROOTS :=
+
+# This defines any additional object files that need to be compiled.
+OBJECT_ROOTS :=
+
+# This defines any additional dlls (shared objects), other than the pintools, that need to be compiled.
+#DLL_ROOTS := ExecState InsState
+DLL_ROOTS :=
+
+# This defines any static libraries (archives), that need to be built.
+LIB_ROOTS :=
+
+
+### Build the intermediate object file. ###
+
+# Build the tool as a dll (shared object).
+#$(OBJDIR)ExecState$(OBJ_SUFFIX): ExecState.h
+#
+#$(OBJDIR)InsState$(OBJ_SUFFIX): InsState.h
+#
+$(OBJDIR)proxbbe_tracer$(OBJ_SUFFIX): proxbbe_tracer.cpp proxbbe_tracer.h
+	$(CC) $(TOOL_CXXFLAGS) $(COMP_OBJ)$@ $<
+
+$(OBJDIR)ExecState$(OBJ_SUFFIX): ExecState.cpp ExecState.h
+	$(CC) $(TOOL_CXXFLAGS) $(COMP_OBJ)$@ $<
+
+$(OBJDIR)InsState$(OBJ_SUFFIX): InsState.cpp InsState.h
+	$(CC) $(TOOL_CXXFLAGS) $(COMP_OBJ)$@ $<
+
+$(OBJDIR)SyscallState$(OBJ_SUFFIX): SyscallState.cpp SyscallState.h
+	$(CC) $(TOOL_CXXFLAGS) $(COMP_OBJ)$@ $<
+
+$(OBJDIR)base64$(OBJ_SUFFIX): base64.cpp base64.h
+	$(CC) $(TOOL_CXXFLAGS) $(COMP_OBJ)$@ $<
+
+# Build the tool as a dll (shared object).
+$(OBJDIR)proxbbe_tracer$(PINTOOL_SUFFIX): $(OBJDIR)proxbbe_tracer$(OBJ_SUFFIX) $(OBJDIR)ExecState$(OBJ_SUFFIX) $(OBJDIR)InsState$(OBJ_SUFFIX) $(OBJDIR)SyscallState$(OBJ_SUFFIX) $(OBJDIR)base64$(OBJ_SUFFIX) ExecState.h InsState.h SyscallState.h base64.h
+	$(LINKER) $(TOOL_LDFLAGS_NOOPT) $(LINK_EXE)$@ $(^:%.h=) $(TOOL_LPATHS) $(TOOL_LIBS)
+
